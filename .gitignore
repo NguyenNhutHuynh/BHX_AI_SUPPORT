@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+*/node_modules/
+vendor/
+*/vendor/
+
+# Environment files
+.env
+.env.*
+!.env.example
+*.local
+
+# Build outputs
+dist/
+*/dist/
+web-build/
+*/web-build/
+build/
+*/build/
+
+# Expo & Mobile
+.expo/
+*/.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.kotlin/
+
+# Logs & Cache
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.npm
+.eslintcache
+
+# IDE & OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Laravel specific
+backend-api/storage/*.key
+backend-api/storage/oauth-*.key
+backend-api/public/storage
+backend-api/public/hot
+backend-api/bootstrap/cache/*
+!backend-api/bootstrap/cache/.gitignore
