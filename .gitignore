@@ -51,3 +51,4 @@ backend-api/public/storage
 backend-api/public/hot
 backend-api/bootstrap/cache/*
 !backend-api/bootstrap/cache/.gitignore
+
