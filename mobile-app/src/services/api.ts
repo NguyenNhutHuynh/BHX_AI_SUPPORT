@@ -3,7 +3,31 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const SERVER_STORAGE_KEY = '@bhx_server_api_url';
+export const GUEST_UUID_STORAGE_KEY = '@app_guest_uuid';
+export const AUTH_TOKEN_STORAGE_KEY = '@app_auth_token';
+export const USER_INFO_STORAGE_KEY = '@app_user_info';
 export const DEFAULT_LAN_IP = '172.16.10.2';
+
+let currentGuestUuid: string | null = null;
+let currentAuthToken: string | null = null;
+
+export const setAuthToken = (token: string | null) => {
+  currentAuthToken = token;
+  if (token) {
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete apiClient.defaults.headers.common['Authorization'];
+  }
+};
+
+export const setGuestUuid = (uuid: string | null) => {
+  currentGuestUuid = uuid;
+  if (uuid) {
+    apiClient.defaults.headers.common['X-Guest-Uuid'] = uuid;
+  } else {
+    delete apiClient.defaults.headers.common['X-Guest-Uuid'];
+  }
+};
 
 // Tự động nhận diện host mặc định
 export const getDefaultBaseUrl = () => {
@@ -244,5 +268,33 @@ export const api = {
   async savePreferences(data: any) {
     const res = await apiClient.post('/preferences', data);
     return res.data;
+  },
+
+  // Hệ thống Xác thực (Khách & Đăng nhập Số điện thoại OTP)
+  auth: {
+    async getSession(): Promise<{ success: boolean; is_logged_in: boolean; is_guest: boolean; user: any }> {
+      const res = await apiClient.get('/auth/session');
+      return res.data;
+    },
+    async sendOtp(phone: string): Promise<{ success: boolean; message: string; test_otp?: string }> {
+      const res = await apiClient.post('/auth/send-otp', { phone });
+      return res.data;
+    },
+    async verifyOtp(
+      phone: string,
+      otp: string,
+      guestUuid?: string
+    ): Promise<{ success: boolean; message: string; token: string; user: any }> {
+      const res = await apiClient.post('/auth/verify-otp', {
+        phone,
+        otp,
+        guest_uuid: guestUuid,
+      });
+      return res.data;
+    },
+    async logout(): Promise<{ success: boolean; message: string }> {
+      const res = await apiClient.post('/auth/logout');
+      return res.data;
+    },
   },
 };

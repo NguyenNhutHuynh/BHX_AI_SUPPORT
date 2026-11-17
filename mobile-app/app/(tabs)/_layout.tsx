@@ -1,8 +1,9 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { ServerHeaderButton } from '../../src/components/ServerHeaderButton';
+import { UserHeaderButton } from '../../src/components/UserHeaderButton';
 
 export default function TabLayout() {
   return (
@@ -16,7 +17,12 @@ export default function TabLayout() {
           fontWeight: 'bold',
           fontSize: 18,
         },
-        headerRight: () => <ServerHeaderButton />,
+        headerRight: () => (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <UserHeaderButton />
+            <ServerHeaderButton />
+          </View>
+        ),
         tabBarActiveTintColor: '#008848',
         tabBarInactiveTintColor: '#757575',
         tabBarStyle: {
@@ -36,7 +42,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Tạo Thực Đơn',
-          headerTitle: 'BHX Master - Lập Thực Đơn',
+          headerTitle: 'Đi Chợ Khéo - Thực Đơn AI',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="chef-hat" size={size} color={color as any} />
           ),
@@ -46,7 +52,7 @@ export default function TabLayout() {
         name="meal-plan"
         options={{
           title: 'Thực Đơn & Giỏ',
-          headerTitle: 'Thực Đơn & Giỏ Hàng BHX',
+          headerTitle: 'Thực Đơn & Mua Sắm',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cart-outline" size={size} color={color as any} />
           ),
@@ -56,7 +62,7 @@ export default function TabLayout() {
         name="pantry"
         options={{
           title: 'Tủ Lạnh Ảo',
-          headerTitle: 'Tủ Lạnh Ảo Của Tôi',
+          headerTitle: 'Tủ Lạnh Ảo',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="fridge-outline" size={size} color={color as any} />
           ),
@@ -66,7 +72,7 @@ export default function TabLayout() {
         name="catalog"
         options={{
           title: 'Kho Hàng BHX',
-          headerTitle: 'Kho Hàng Bách Hóa Xanh',
+          headerTitle: 'Kho Hàng Siêu Thị',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="storefront-outline" size={size} color={color as any} />
           ),

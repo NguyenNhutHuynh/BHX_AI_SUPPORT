@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BhxProductController;
 use App\Http\Controllers\MealPlanController;
 use Illuminate\Support\Facades\Route;
@@ -7,12 +8,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', function () {
     return response()->json([
         'status' => 'ok',
-        'service' => 'BHX Master API',
+        'service' => 'Đi Chợ Khéo API',
         'timestamp' => now()->toIso8601String(),
     ]);
 });
 
-// Danh mục và sản phẩm Bách Hóa Xanh
+// Xác thực & Quản lý phiên (Khách vãng lai & Đăng nhập Số điện thoại OTP)
+Route::prefix('auth')->group(function () {
+    Route::get('/session', [AuthController::class, 'session']);
+    Route::post('/send-otp', [AuthController::class, 'sendOtp']);
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+// Danh mục và sản phẩm
 Route::get('/bhx-products', [BhxProductController::class, 'index']);
 Route::post('/bhx-products/sync-realtime-prices', [BhxProductController::class, 'syncRealtimePrices']);
 
