@@ -13,12 +13,14 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { api, PantryItem } from '../../src/services/api';
 import { useMealPlan } from '../../src/context/MealPlanContext';
+import { useAuth } from '../../src/context/AuthContext';
 import { SafeImage } from '../../src/components/SafeImage';
 import { OfflineBanner } from '../../src/components/OfflineBanner';
 
 export default function PantryScreen() {
   const router = useRouter();
   const { pantryRefreshKey } = useMealPlan();
+  const { isLoggedIn, openAuthModal } = useAuth();
 
   const [items, setItems] = useState<PantryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -92,6 +94,15 @@ export default function PantryScreen() {
   return (
     <View style={styles.container}>
       <OfflineBanner />
+      {!isLoggedIn && (
+        <TouchableOpacity style={styles.guestBanner} onPress={openAuthModal} activeOpacity={0.85}>
+          <Ionicons name="cloud-upload-outline" size={16} color="#1b5e20" />
+          <Text style={styles.guestBannerText}>
+            Đang ở <Text style={{ fontWeight: '700' }}>Chế độ Khách</Text>. Bấm vào đây để đăng ký SĐT đồng bộ tủ lạnh.
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color="#1b5e20" />
+        </TouchableOpacity>
+      )}
       {/* Header tổng quan */}
       <View style={styles.headerBanner}>
         <View style={styles.headerInfo}>
@@ -443,5 +454,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#E53935',
     marginTop: 4,
+  },
+  guestBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e8f5e9',
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#c8e6c9',
+    gap: 8,
+  },
+  guestBannerText: {
+    flex: 1,
+    fontSize: 12.5,
+    color: '#1b5e20',
   },
 });

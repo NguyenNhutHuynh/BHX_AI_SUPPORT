@@ -1,20 +1,20 @@
 {
   "expo": {
-    "name": "BHX Master - Đi Chợ Thông Minh",
-    "slug": "bhx-master",
+    "name": "Đi Chợ Khéo - Mâm Cơm Thông Minh",
+    "slug": "di-cho-kheo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "bhxmaster",
+    "scheme": "dichokheo",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.bhxmaster.app",
+      "bundleIdentifier": "com.dichokheo.app",
       "buildNumber": "1.0.0",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.bhxmaster.app",
+      "package": "com.dichokheo.app",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#008848",

@@ -1,0 +1,64 @@
+services:
+  # 1. Cơ sở dữ liệu MySQL / MariaDB
+  mysql:
+    image: mariadb:10.11
+    container_name: dichokheo-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: bhx_master_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - dichokheo-network
+
+  # 2. Máy chủ Backend Laravel API
+  backend:
+    build:
+      context: ./backend-api
+      dockerfile: Dockerfile
+    container_name: dichokheo-backend
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      APP_NAME: "Đi Chợ Khéo API"
+      APP_ENV: production
+      APP_KEY: base64:Q6UPdyylYBGT4Tt20BFqfHZvM+LdxpL+PTxTBBy5YDk=
+      APP_DEBUG: "false"
+      APP_URL: "http://localhost:8000"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: bhx_master_db
+      DB_USERNAME: root
+      DB_PASSWORD: secret
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+    ports:
+      - "8000:8000"
+    networks:
+      - dichokheo-network
+
+  # 3. Giao diện Web Frontend (Nginx phục vụ Expo Web + Tự động Reverse Proxy API)
+  frontend:
+    build:
+      context: ./mobile-app
+      dockerfile: Dockerfile
+    container_name: dichokheo-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - dichokheo-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  dichokheo-network:
+    driver: bridge

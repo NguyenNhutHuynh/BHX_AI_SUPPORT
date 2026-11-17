@@ -181,7 +181,7 @@ export default function PlannerScreen() {
         <View style={styles.bannerTopRow}>
           <View style={styles.bannerBadge}>
             <MaterialCommunityIcons name="lightning-bolt" size={16} color="#FFD700" />
-            <Text style={styles.bannerBadgeText}>AI BHX Smart Planner</Text>
+            <Text style={styles.bannerBadgeText}>AI Đi Chợ Khéo</Text>
           </View>
 
           {/* Nút Cập Nhật Giá Thời Gian Thực */}

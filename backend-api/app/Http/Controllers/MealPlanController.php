@@ -20,16 +20,34 @@ class MealPlanController extends Controller
     }
 
     /**
-     * Đảm bảo luôn tồn tại ít nhất một User hợp lệ để gắn khóa ngoại
+     * Xác định Người dùng hiện tại (hỗ trợ User đăng nhập SĐT, Khách Guest UUID, hoặc User ID)
      */
-    protected function ensureUser(int $userId): User
+    protected function resolveUser(Request $request): User
     {
+        // 1. Người dùng đã xác thực bằng Sanctum Token
+        if ($user = $request->user('sanctum')) {
+            return $user;
+        }
+
+        // 2. Chế độ khách vãng lai dựa trên Guest UUID (lưu trên thiết bị)
+        $guestUuid = $request->header('X-Guest-Uuid') ?: $request->input('guest_uuid', $request->query('guest_uuid'));
+        if (!empty($guestUuid)) {
+            return User::firstOrCreate(
+                ['guest_uuid' => $guestUuid],
+                [
+                    'name' => 'Khách ' . substr($guestUuid, 0, 6),
+                    'is_guest' => true,
+                ]
+            );
+        }
+
+        // 3. Fallback theo user_id truyền lên hoặc mặc định user 1
+        $userId = (int) ($request->input('user_id') ?: $request->query('user_id', 1));
         return User::firstOrCreate(
             ['id' => $userId],
             [
-                'name' => 'Demo User',
-                'email' => 'user' . $userId . '@example.com',
-                'password' => bcrypt('password123'),
+                'name' => 'Khách ' . $userId,
+                'is_guest' => true,
             ]
         );
     }
@@ -42,6 +60,7 @@ class MealPlanController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'nullable|integer',
+            'guest_uuid' => 'nullable|string',
             'daily_budget' => 'nullable|integer|min:10000',
             'meals_per_day' => 'nullable|integer|min:1|max:5',
             'servings' => 'nullable|integer|min:1|max:10',
@@ -50,8 +69,8 @@ class MealPlanController extends Controller
             'disliked_foods' => 'nullable|array',
         ]);
 
-        $userId = $validated['user_id'] ?? 1;
-        $this->ensureUser($userId);
+        $user = $this->resolveUser($request);
+        $userId = $user->id;
 
         $preference = UserPreference::updateOrCreate(
             ['user_id' => $userId],
@@ -68,6 +87,11 @@ class MealPlanController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Lưu thiết lập người dùng thành công.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'is_guest' => $user->is_guest,
+            ],
             'data' => $preference,
         ]);
     }
@@ -80,6 +104,7 @@ class MealPlanController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'nullable|integer',
+            'guest_uuid' => 'nullable|string',
             'days_count' => 'nullable|integer|min:1|max:7',
             'daily_budget' => 'nullable|integer|min:10000',
             'meals_per_day' => 'nullable|integer|min:1|max:5',
@@ -88,8 +113,8 @@ class MealPlanController extends Controller
             'disliked_foods' => 'nullable|array',
         ]);
 
-        $userId = $validated['user_id'] ?? 1;
-        $this->ensureUser($userId);
+        $user = $this->resolveUser($request);
+        $userId = $user->id;
 
         // Lấy thông tin preferences đã lưu nếu có
         $savedPref = UserPreference::where('user_id', $userId)->first();
@@ -125,6 +150,11 @@ class MealPlanController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Tạo thực đơn thông minh thành công.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'is_guest' => $user->is_guest,
+            ],
             'data' => [
                 'plan_id' => $mealPlan->id,
                 'plan_date' => $mealPlan->plan_date,
@@ -211,8 +241,8 @@ class MealPlanController extends Controller
      */
     public function getPantry(Request $request): JsonResponse
     {
-        $userId = (int) ($request->query('user_id', 1));
-        $this->ensureUser($userId);
+        $user = $this->resolveUser($request);
+        $userId = $user->id;
 
         $pantryItems = UserPantry::with('product')
             ->where('user_id', $userId)
@@ -235,9 +265,13 @@ class MealPlanController extends Controller
 
         return response()->json([
             'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'is_guest' => $user->is_guest,
+            ],
             'total_items' => $pantryItems->count(),
             'data' => $pantryItems,
         ]);
     }
 }
-
